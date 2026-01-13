@@ -42,3 +42,11 @@ To run the development server locally witho ut Docker, use the following command
 ```bash
 uv run chainlit run app.py -w 
 ```
+
+## Upgrade Chainlit
+
+To upgrade Chainlit to the latest version, use the following command:
+
+```bash
+uv lock --upgrade-package chainlit
+```
