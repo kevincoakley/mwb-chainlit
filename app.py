@@ -45,57 +45,6 @@ settings = {
 # Prompt instruction for the LLM
 PROMPT_INSTRUCTION = os.environ.get("PROMPT_INSTRUCTION")
 
-# Maximum number of conversation turns to keep in history
-# Prevents context window overflow that can cause connection errors
-# Each turn = 1 user message + 1 assistant response (possibly with tool calls)
-MAX_HISTORY_TURNS = int(os.environ.get("MAX_HISTORY_TURNS", "10"))
-
-
-def _trim_message_history(messages: List[Dict[str, Any]], max_turns: int) -> List[Dict[str, Any]]:
-    """Trim conversation history to prevent context window overflow.
-    
-    Keeps the system message and the most recent conversation turns,
-    where a turn consists of user message, optional assistant tool calls,
-    optional tool results, and assistant response.
-    
-    Args:
-        messages: Full conversation history
-        max_turns: Maximum number of user-assistant exchange turns to keep
-    
-    Returns:
-        Trimmed message history with system prompt and recent turns
-    """
-    if not messages:
-        return messages
-    
-    # Separate system message (always at index 0) from conversation
-    system_msg = None
-    conversation = messages
-    if messages[0].get("role") == "system":
-        system_msg = messages[0]
-        conversation = messages[1:]
-    
-    # If conversation is short enough, return as-is
-    if len(conversation) <= max_turns * 4:  # Rough estimate: user + assistant + tool calls + results
-        return messages
-    
-    # Count turns by counting user messages (each turn starts with user message)
-    user_message_indices = [i for i, msg in enumerate(conversation) if msg.get("role") == "user"]
-    
-    if len(user_message_indices) <= max_turns:
-        # We're within the turn limit
-        return messages
-    
-    # Keep only the last max_turns
-    cut_index = user_message_indices[-max_turns]
-    trimmed_conversation = conversation[cut_index:]
-    
-    # Reconstruct with system message
-    if system_msg:
-        return [system_msg] + trimmed_conversation
-    return trimmed_conversation
-
-
 def _get_mcp_tools_state() -> Tuple[Dict[str, List[Dict[str, Any]]], Dict[str, str]]:
     """Retrieve MCP tools state from the user session.
 
@@ -191,6 +140,7 @@ async def on_mcp_connect(connection, session):
         # Normalize returned tools to plain dicts for consistent handling
         # Tools may be returned as Pydantic models or plain dictionaries
         tools: List[Dict[str, Any]] = []
+        
         for tool in getattr(result, "tools", []) or []:
             # Extract tool metadata using both attribute and dict access for compatibility
             name = getattr(tool, "name", None) or tool.get("name")
@@ -356,24 +306,17 @@ async def on_message(message: cl.Message):
     tools_by_conn, _ = _get_mcp_tools_state()
     openai_tools = _mcp_tools_to_openai_tools(tools_by_conn) if tools_by_conn else []
 
-    # Retrieve or initialize conversation history from session
-    message_history = cl.user_session.get("message_history")
-    if message_history is None:
-        # First message in conversation - initialize with system prompt
-        message_history = [
-            {"role": "system", "content": PROMPT_INSTRUCTION}
-        ]
-    
-    # Append the current user message to history
-    message_history.append({"role": "user", "content": message.content})
-
-    # Trim history to prevent context window overflow and connection errors
-    message_history = _trim_message_history(message_history, MAX_HISTORY_TURNS)
+    # Prepare messages for OpenAI chat completion
+    messages = [
+        {"content": PROMPT_INSTRUCTION, "role": "system"},
+    ]
+    # Add all of the previous messages in the conversation in OpenAI format
+    messages.extend(cl.chat_context.to_openai())
 
     # Initial model call with function calling capability
     # Provide tool definitions so model can choose to call them if needed
     response = await client.chat.completions.create(
-        messages=message_history,
+        messages=messages,
         tools=openai_tools if openai_tools else None,
         tool_choice=(
             "auto" if openai_tools else None
@@ -386,9 +329,8 @@ async def on_message(message: cl.Message):
     # Check if the model wants to call any tools
     tool_calls = getattr(msg, "tool_calls", None)
     if tool_calls:
-        # Append the assistant's tool call requests to conversation history
-        # This preserves the full context for the second model call
-        message_history.append({
+        # Append the assistant's tool calls to the message history
+        messages.append({
             "role": "assistant",
             "content": msg.content or "",
             "tool_calls": [
@@ -450,31 +392,20 @@ async def on_message(message: cl.Message):
                 {"role": "tool", "tool_call_id": tc.id, "content": content}
             )
 
-        # Add all tool results to conversation history
-        message_history.extend(tool_results_msgs)
-
         # Second model call with tool results included
         # Model uses these results to formulate a natural language response
         second = await client.chat.completions.create(
-            messages=message_history,
+            messages=messages,
             **settings,
         )
         
-        # Add the final assistant response to history
+        # Display the final assistant response
         final_response = second.choices[0].message.content or ""
-        message_history.append({"role": "assistant", "content": final_response})
-        
-        # Save updated conversation history to session
-        cl.user_session.set("message_history", message_history)
         
         await cl.Message(content=final_response).send()
         return
 
-    # No tool calls were made - add assistant's direct response to history
+    # No tool calls were made - display the assistant's direct response
     assistant_response = msg.content or ""
-    message_history.append({"role": "assistant", "content": assistant_response})
-    
-    # Save updated conversation history to session
-    cl.user_session.set("message_history", message_history)
-    
+       
     await cl.Message(content=assistant_response).send()
