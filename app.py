@@ -45,6 +45,9 @@ settings = {
 # Prompt instruction for the LLM
 PROMPT_INSTRUCTION = os.environ.get("PROMPT_INSTRUCTION")
 
+# Set verbose UI logging based on environment variable, defaulting to False
+VERBOSE_UI_LOGGING = os.environ.get("VERBOSE_UI_LOGGING", "false").lower()
+
 def _get_mcp_tools_state() -> Tuple[Dict[str, List[Dict[str, Any]]], Dict[str, str]]:
     """Retrieve MCP tools state from the user session.
 
@@ -158,17 +161,18 @@ async def on_mcp_connect(connection, session):
                 name_to_conn[t["name"]] = connection.name
         _set_mcp_tools_state(tools_by_conn, name_to_conn)
 
-        if tools:
-            tool_names = ", ".join([t["name"] for t in tools if t.get("name")])
-            await cl.Message(
-                content=(
-                    f"MCP '{connection.name}' connected. Tools available: {tool_names}"
-                )
-            ).send()
-        else:
-            await cl.Message(
-                content=f"MCP '{connection.name}' connected. No tools found."
-            ).send()
+        if VERBOSE_UI_LOGGING == "true":
+            if tools:
+                tool_names = ", ".join([t["name"] for t in tools if t.get("name")])
+                await cl.Message(
+                    content=(
+                        f"MCP '{connection.name}' connected. Tools available: {tool_names}"
+                    )
+                ).send()
+            else:
+                await cl.Message(
+                    content=f"MCP '{connection.name}' connected. No tools found."
+                ).send()
     except Exception as e:
         await cl.Message(content=f"Failed to initialize MCP: {e}").send()
 
@@ -265,17 +269,18 @@ async def _ensure_mcp_connected():
                     name_to_conn[t["name"]] = MCP_NAME
             _set_mcp_tools_state(tools_by_conn, name_to_conn)
 
-            if tools:
-                await cl.Message(
-                    content=(
-                        f"Auto-connected MCP '{MCP_NAME}'. Tools: "
-                        + ", ".join([t["name"] for t in tools if t.get("name")])
-                    )
-                ).send()
-            else:
-                await cl.Message(
-                    content=f"Auto-connected MCP '{MCP_NAME}'. No tools found."
-                ).send()
+            if VERBOSE_UI_LOGGING == "true":
+                if tools:
+                    await cl.Message(
+                        content=(
+                            f"Auto-connected MCP '{MCP_NAME}'. Tools: "
+                            + ", ".join([t["name"] for t in tools if t.get("name")])
+                        )
+                    ).send()
+                else:
+                    await cl.Message(
+                        content=f"Auto-connected MCP '{MCP_NAME}'. No tools found."
+                    ).send()
         except Exception as e:
             await cl.Message(
                 content=f"MCP connected but listing tools failed: {e}"
