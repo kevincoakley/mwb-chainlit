@@ -1,1 +1,3 @@
-.chainlit/
+.venv
+.files/
+generated_plots/

@@ -1,52 +1,65 @@
 # mwb-chainlit
 
-This project is a Chainlit application that integrates with a Model Control Plane (MCP) to provide AI-powered functionalities. The application is containerized using Docker for easy deployment.
+Simple Chainlit app that uses a LangChain agent and an OpenAI-compatible model endpoint to answer metabolomics questions and generate volcano plot and clustered heatmap PNGs via `mwb_api.py`, `perform_volcano_plot_analysis.py`, and `perform_clustered_heatmap_analysis.py`.
 
-## Environment Variables
+## Requirements
 
-- `BASE_URL`: The base URL for the OpenAI-compatible API endpoint.
-- `API_KEY`: The API key for authenticating with the OpenAI-compatible API.
-- `MCP_NAME`: The display name for the MCP connection.
-- `MCP_URL`: The URL of the streamable HTTP MCP server.
-- `MODEL`: The model to use for chat completions (e.g., "gpt-4", "gpt-3.5-turbo").
-- `PROMPT_INSTRUCTION`: The instruction to use for the LLM prompt.
+- Python 3.12+
+- `uv`
+- OpenAI-compatible API endpoint and model access
 
-## Build Docker Image
-To build the Docker image for the application, run the following command in the terminal:
+## Setup
+
+```bash
+uv sync --group test
+```
+
+## Run in Development
+
+```bash
+export BASE_URL="https://your-openai-compatible-endpoint/v1"
+export API_KEY="your-api-key"
+export MODEL="gpt-4o-mini"
+export VERBOSE_UI_LOGGING="true"  # optional: show tool/LLM debug logs in UI + console
+uv run chainlit run app.py -w
+```
+
+Then open the Chainlit URL shown in the terminal.
+Example prompts:
+- `Create a volcano plot analysis from study ST000001`
+- `Create a clustered heatmap analysis from study ST000001`
+Generated plot images are saved under `generated_plots/` and displayed in the chat with study summary details.
+
+## Run Tests
+
+```bash
+uv run pytest
+```
+
+Optional coverage:
+
+```bash
+uv run pytest --cov=.
+```
+
+## Run in Production with Docker
+
+Build image:
 
 ```bash
 docker build -t mwb-chainlit:latest .
 ```
 
-## Run Docker Container
-To run the Docker container, use the following command, replacing the environment variable values as needed:
+Run container:
 
 ```bash
 docker run \
   --name mwb-chainlit \
   --rm \
   -p 8000:8000 \
-  -e BASE_URL="" \
-  -e API_KEY="" \
-  -e MCP_NAME="" \
-  -e MCP_URL="" \
-  -e MODEL="" \
-  -e PROMPT_INSTRUCTION="You are a helpful assistant." \
+  -e BASE_URL="https://your-openai-compatible-endpoint/v1" \
+  -e API_KEY="your-api-key" \
+  -e MODEL="gpt-4o-mini" \
+  -e VERBOSE_UI_LOGGING="true" \
   mwb-chainlit:latest
-```
-
-## Run Development Server
-
-To run the development server locally witho ut Docker, use the following command:
-
-```bash
-uv run chainlit run app.py -w 
-```
-
-## Upgrade Chainlit
-
-To upgrade Chainlit to the latest version, use the following command:
-
-```bash
-uv lock --upgrade-package chainlit
 ```
