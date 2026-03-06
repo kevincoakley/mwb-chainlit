@@ -65,6 +65,11 @@ Always use `uv` for package management and script execution.
 3. Run tests to ensure they pass
 4. Format code with Black
 
+## Excluded files
+Do not modify the following files or write test for them, unless explicitly asked to do so:
+- perform_clustered_heatmap_analysis.py
+- perform_volcano_plot_analysis.py
+
 ## 4. Coding Conventions & Style
 
 ### Design Philosophy: Simplicity First
