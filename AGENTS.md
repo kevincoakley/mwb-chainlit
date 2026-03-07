@@ -1,114 +1,118 @@
 # AGENTS.md
 
-> Purpose: This file provides context, conventions, and setup instructions for AI agents working on this repository.
+> **Mandate:** This file serves as the primary instructional context for AI agents working on the `mwb-chainlit` repository. Adhere to the following guidelines and conventions at all times.
 
 ## 1. Project Overview
-- Description: This is a repository for a Chainlit application focused on metabolomics data analysis. The application will utilize AI agents to assist users in analyzing and interpreting metabolomics datasets.
-- Language: Python
-- Package Manager: `uv` (Do not use pip or poetry directly)
+`mwb-chainlit` is a specialized AI assistant for metabolomics data analysis. It provides a conversational interface via **Chainlit** and employs a **LangChain** agent to interact with the **Metabolomics Workbench API**.
+
+### Key Technologies
+- **Language:** Python 3.12+
+- **Agent Framework:** LangChain (with LangGraph and OpenAI-compatible Chat Models)
+- **Frontend/UI:** Chainlit
+- **Package Manager:** `uv` (Do not use pip or poetry directly)
+- **Data Analysis:** Pandas, SciPy, Statsmodels, Seaborn, Matplotlib
+
+### Architecture
+The application follows a tool-based agent architecture:
+- **`app.py`**: Main entry point, defines the Chainlit UI and the LangChain agent.
+- **`study_tool_logic.py`** (and other `*_tool_logic.py` files): Core logic for agent tools.
+- **`mwb_api.py`**: Wrapper for Metabolomics Workbench API calls.
+- **Analysis Modules**: `perform_volcano_plot_analysis.py` and `perform_clustered_heatmap_analysis.py` handle heavy-duty plotting (Note: These are generally treated as read-only).
+- **Caching**: `datatable_cache.py` manages transient data references between tool calls.
+
+---
 
 ## 2. Directory Structure
 
 ```
 .
 ├── .chainlit                       # Chainlit configuration and assets
-├── .gitignore                      # Git ignore file
-├── .python-version                 # UV Python version file
 ├── agent_message_utils.py          # Helpers for translating LangChain/Chainlit message payloads.
-├── AGENTS.md                       # This file
-├── app.py                          # Chainlit app with a LangChain agents backed by OpenAI-compatible APIs.
+├── AGENTS.md                       # This file (Instructional context for AI agents)
+├── app.py                          # Chainlit app with a LangChain agent.
 ├── chainlit.md                     # Chainlit help documentation
-├── datatable_cache.py              # Helpers for caching analysis datatables by generated references.
+├── compound_tool_logic.py          # Tool logic for compound context.
+├── datatable_cache.py              # Helpers for caching analysis datatables.
 ├── Dockerfile                      # Docker configuration file
-├── mwb_api.py                      # Functions for interacting with the Metabolomics Workbench API
-├── perform_clustered_heatmap_analysis.py # Functions for performing clustered heatmap analysis
-├── perform_volcano_plot_analysis.py # Functions for performing volcano plot analysis
-├── pyproject.toml                  # UV Project configuration
-├── README.md                       # Project description
-├── study_summary_formatting.py     # Formatting helpers for user-facing study summary content.
-├── study_tool_logic.py             # LangChain agent tool logic used by Chainlit tool entrypoints.
-├── tests/                          # Directory for test files
-├── uv.lock                         # UV Lock file for dependencies
-└── verbose_logging.py              # Verbose logging helpers shared by the Chainlit app
+├── gene_protein_tool_logic.py      # Tool logic for gene/protein context.
+├── metstat_tool_logic.py           # Tool logic for MetStat context.
+├── moverz_tool_logic.py            # Tool logic for MS/moverz context.
+├── mwb_api.py                      # Wrapper for Metabolomics Workbench API.
+├── perform_clustered_heatmap_analysis.py # Heatmap plotting module.
+├── perform_volcano_plot_analysis.py # Volcano plotting module.
+├── pyproject.toml                  # UV Project configuration.
+├── README.md                       # Project description and user setup.
+├── refmet_tool_logic.py            # Tool logic for RefMet context.
+├── study_summary_formatter.py      # Formatting helpers for study summaries.
+├── study_tool_logic.py             # Tool logic for study context.
+├── tests/                          # Directory for test files.
+├── uv.lock                         # UV Lock file.
+└── verbose_logging.py              # Verbose logging helpers.
 ```
 
+---
+
 ## 3. Development Workflow & Commands
+
+### Environment Configuration
+The following environment variables are required for development:
+- `BASE_URL`: OpenAI-compatible API endpoint.
+- `API_KEY` or `OPENAI_API_KEY`: Your API key.
+- `MODEL`: The LLM to use (e.g., `gpt-4o-mini`).
+- `VERBOSE_UI_LOGGING`: (Optional) `"true"` to enable debug logs.
+
+### Key Commands
 Always use `uv` for package management and script execution.
+- **Setup:** `uv sync --group test`
+- **Development Server:** `uv run chainlit run app.py -w`
+- **Running Tests:** `uv run pytest`
+- **Test Coverage:** `uv run pytest --cov=.`
+- **Formatting:** `uv run black .`
+- **Dependency Management:** Use `uv add <pkg>` or `uv add <pkg> --group test`.
 
-### Setup
-- First time setup: `uv sync` (Installs environment based on lockfile)
-- Update environment: `uv sync`
+### Testing Standards
+- **TDD:** Write or update tests in the `tests/` directory before implementation.
+- **Naming:** Files must follow the `test_<module>.py` pattern.
+- **Fixtures:** Use `pytest` fixtures for mocking API calls or shared state.
+- **Minimalism:** Tests should focus on behavior, not implementation details.
 
-### Dependency Management
-- Add production dependency: `uv add <package_name>`
-- Add dev/test dependency: `uv add <package_name> --group test`
-- Remove dependency: `uv remove <package_name>`
-
-### Running Code
-- Run script: `uv run python <script_path>`
-
-### Testing
-- Install test environment: `uv sync --group test`
-- Run all tests: `uv run pytest`
-- Write tests for new features.
-- Maintain existing test coverage.
-- Use pytest fixtures for common setup.
-- Create separate test files for each module.
-- Create test in a `tests/` directory at the root level.
-- Name test files as `test_<module>.py`
-- Test coverage: `uv run pytest --cov=.`
-- Tests should be minimal and focused on behavior, not implementation details.
-
-## Development Process
-1. Write/update tests first (TDD approach)
-2. Implement changes
-3. Run tests to ensure they pass
-4. Format code with Black
-
-## Excluded files
-Do not modify the following files or write test for them, unless explicitly asked to do so:
-- perform_clustered_heatmap_analysis.py
-- perform_volcano_plot_analysis.py
+---
 
 ## 4. Coding Conventions & Style
 
-### Design Philosophy: Simplicity First
-- Prefer simple, direct solutions over complex or abstract ones.
-- Less code is generally better than more code, as long as readability is preserved.
-- Avoid clever or overly compact statements that reduce clarity.
-- Before adding new code, review the surrounding file and consider whether refactoring existing code can simplify the overall solution.
-- When refactoring, aim to reduce duplication, nesting, and indirection rather than introducing new abstractions.
-- Do not introduce additional dependencies or patterns unless they provide clear, measurable benefit.
+### Design Philosophy: "Simplicity First"
+- **Minimalism:** Prefer simple, direct solutions over complex abstractions.
+- **Refactoring:** Before adding new code, consider if refactoring existing code can simplify the solution.
+- **Docstrings:** Use **Google Style Docstrings** for all modules, classes, and functions.
+- **Typing:** Use standard Python type hints for all function arguments and return values.
 
-### Formatting
-- Formatter: Black
-  - Command: `uv run black .`
-  - Rule: Always run formatting before declaring a task complete.
-- Follow PEP 8 conventions.
-- Use type hints where appropriate.
-- Write docstrings for functions and classes.
+### Tool-First Implementation
+The agent relies on specific tool sequences. When adding new features:
+- Encapsulate logic in the appropriate `*_tool_logic.py` file.
+- Register tools in `app.py`.
+- Ensure tools return JSON-serializable dictionaries or specific result objects.
 
-### Commenting
-- Use clear and concise comments to explain non-obvious code.
-- Use docstrings for all public modules, functions, classes, and methods.
+### Formatting & Style
+- **Formatter:** Black (`uv run black .`). Always run before declaring a task complete.
+- **Style:** Follow PEP 8 conventions.
+- **Commenting:** Use clear and concise comments to explain non-obvious code.
 
-### Type Hinting
-- Use standard Python type hints for function arguments and return values.
-- Example: `def my_func(name: str) -> int:`
+### Restricted Files
+Do **not** modify or write tests for the following files unless explicitly directed:
+- `perform_clustered_heatmap_analysis.py`
+- `perform_volcano_plot_analysis.py`
 
-### 5. Deployment
-- The website will be deployed using Docker in production.
-- The Dockerfile should be simple and efficient, using a lightweight Python base image.
-- Don't include unnecessary files in the Docker image (use .dockerignore effectively).
-- Update the Dockerfile when changes are made that might affect the production environment (e.g. new dependencies, changes to how the app is run).
-- Update the README.md with instructions for running the code in production using Docker.
+---
 
-## 6. Critical Rules for Agents
-- Do not update `uv.lock` manually. Use `uv add` or `uv sync`.
-- Check `pyproject.toml` to see existing dependencies before adding new ones.
-- Run tests after every significant code change to ensure no regressions.
-- When multiple valid solutions exist, choose the simplest one that satisfies the requirements and existing design.
-- Ensure code is formatted with Black.
-- Preserve existing code style and patterns.
-- Always update the README.md file with instructions for running the code. Be concise, don't include unnecessary information. Focus on how to run the code for testing (unit tests and dev server) and in production.
-- Ask for clarification if requirements are unclear.
+## 5. Lessons Learned & Hints
+- **API Response Handling:** The Metabolomics Workbench REST API often returns data as a list of objects or a single object. Ensure `_get` handles JSON correctly.
+- **Tabular Data:** For `datatable` endpoints, use `pandas.read_csv(StringIO(response.text), sep="\t")` as the API returns TSV format.
+- **Environment Setup:** Always run `uv sync --group test` before running tests to ensure `pytest` and its plugins are available.
+- **Tool Sequence:** The agent's core workflow for analysis is strictly: `get_study_summary` -> `get_study_analysis_information` -> `get_analysis_datatable` -> Analysis Tool.
+
+---
+
+## 6. Common Workflows
+- **Fetching Study Data:** `get_study_summary` -> `get_study_analysis_information` -> `get_analysis_datatable`.
+- **Generating Plots:** After obtaining a `datatable_ref`, call `create_volcano_plot_analysis` or `create_clustered_heatmap_analysis`.
+- **UI Updates:** Modify `app.py` for message handling and `agent_message_utils.py` for payload extraction.

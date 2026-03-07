@@ -1,4 +1,4 @@
-"""Pure workflow helpers used by Chainlit tool entrypoints."""
+"""Study context tool logic for Metabolomics Workbench."""
 
 from __future__ import annotations
 
@@ -8,16 +8,26 @@ from typing import Any
 import pandas as pd
 
 
+def _generic_tool_result(
+    tool_name: str,
+    fetch_func: Callable[..., Any],
+    log: Callable[[str, Any], None],
+    **kwargs: Any,
+) -> Any:
+    """Helper to execute a tool function with standard logging."""
+    log("tool_called", {"tool_name": tool_name, **kwargs})
+    result = fetch_func(**kwargs)
+    log("tool_result", {"tool_name": tool_name, "result": result})
+    return result
+
+
 def get_study_summary_result(
     study_id: str,
     fetch_study_summary: Callable[..., dict[str, Any]],
     log: Callable[[str, Any], None],
 ) -> dict[str, Any]:
-    """Return study summary payload with standard tool logging."""
-    log("tool_called", {"tool_name": "get_study_summary", "study_id": study_id})
-    result = fetch_study_summary(study_id=study_id)
-    log("tool_result", {"tool_name": "get_study_summary", "result": result})
-    return result
+    """Return study summary payload."""
+    return _generic_tool_result("get_study_summary", fetch_study_summary, log, study_id=study_id)
 
 
 def get_study_analysis_information_result(
@@ -25,17 +35,113 @@ def get_study_analysis_information_result(
     fetch_study_analysis_information: Callable[..., dict[str, Any]],
     log: Callable[[str, Any], None],
 ) -> dict[str, Any]:
-    """Return study analysis payload with standard tool logging."""
-    log(
-        "tool_called",
-        {"tool_name": "get_study_analysis_information", "study_id": study_id},
+    """Return study analysis payload."""
+    return _generic_tool_result(
+        "get_study_analysis_information",
+        fetch_study_analysis_information,
+        log,
+        study_id=study_id,
     )
-    result = fetch_study_analysis_information(study_id=study_id)
-    log(
-        "tool_result",
-        {"tool_name": "get_study_analysis_information", "result": result},
+
+
+def get_study_factors_result(
+    study_id: str,
+    fetch_study_factors: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return study factors payload."""
+    return _generic_tool_result("get_study_factors", fetch_study_factors, log, study_id=study_id)
+
+
+def get_study_metabolites_result(
+    study_id: str,
+    fetch_study_metabolites: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return study metabolites payload."""
+    return _generic_tool_result(
+        "get_study_metabolites", fetch_study_metabolites, log, study_id=study_id
     )
-    return result
+
+
+def get_study_data_result(
+    study_id: str,
+    fetch_study_data: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return study data payload."""
+    return _generic_tool_result("get_study_data", fetch_study_data, log, study_id=study_id)
+
+
+def get_study_mwtab_result(
+    analysis_id: str,
+    fetch_study_mwtab: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return study mwTab payload."""
+    return _generic_tool_result("get_study_mwtab", fetch_study_mwtab, log, analysis_id=analysis_id)
+
+
+def get_untargeted_studies_result(
+    fetch_untargeted_studies: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return untargeted studies list."""
+    return _generic_tool_result("get_untargeted_studies", fetch_untargeted_studies, log)
+
+
+def get_untargeted_data_result(
+    analysis_id: str,
+    fetch_untargeted_data: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return untargeted data payload."""
+    return _generic_tool_result(
+        "get_untargeted_data", fetch_untargeted_data, log, analysis_id=analysis_id
+    )
+
+
+def get_untargeted_factors_result(
+    analysis_id: str,
+    fetch_untargeted_factors: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return untargeted factors payload."""
+    return _generic_tool_result(
+        "get_untargeted_factors", fetch_untargeted_factors, log, analysis_id=analysis_id
+    )
+
+
+def get_named_metabolite_studies_result(
+    fetch_named_metabolite_studies: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return named metabolite studies list."""
+    return _generic_tool_result(
+        "get_named_metabolite_studies", fetch_named_metabolite_studies, log
+    )
+
+
+def get_number_of_metabolites_result(
+    study_id: str,
+    fetch_number_of_metabolites: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return number of metabolites for a study."""
+    return _generic_tool_result(
+        "get_number_of_metabolites", fetch_number_of_metabolites, log, study_id=study_id
+    )
+
+
+def get_metabolite_id_info_result(
+    metabolite_id: str,
+    fetch_metabolite_id_info: Callable[..., dict[str, Any]],
+    log: Callable[[str, Any], None],
+) -> dict[str, Any]:
+    """Return metabolite ID info payload."""
+    return _generic_tool_result(
+        "get_metabolite_id_info", fetch_metabolite_id_info, log, metabolite_id=metabolite_id
+    )
 
 
 def get_analysis_datatable_result(
@@ -172,7 +278,7 @@ def _create_plot_analysis_result(
             analysis_id=normalized_analysis_id,
             df=datatable_df,
         )
-    except Exception as exc:  # pragma: no cover - defensive path
+    except Exception as exc:  # pragma: no cover
         return {
             "error": f"{analysis_error_label} generation failed: {exc}",
             "study_id": normalized_study_id,

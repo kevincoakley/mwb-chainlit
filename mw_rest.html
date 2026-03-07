@@ -1,0 +1,862 @@
+  <!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head><title>Metabolomics Workbench : Tools : REST Service</title>		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="robots" content="noarchive" />
+		<meta name="keywords" content="metabolomics, metabolites, metabolic pathways, metabolomics tools, data repository, standards, tutorials, training, pathways, Metabolomics Workbench">
+		<meta name="description" content="About the Metabolomics Workbench: The National Institutes of Health (NIH) Common Fund Metabolomics Program was developed with the goal of increasing national capacity in metabolomics by supporting the development of next generation technologies, providing training and mentoring opportunities, increasing the inventory and availability of high quality reference standards, and promoting data sharing and collaboration. In support of this effort, the Metabolomics Program's Data Repository and Coordinating Center (DRCC), housed at the San Diego Supercomputer Center (SDSC), University of California, San Diego, has developed the Metabolomics Workbench. The Metabolomics Workbench will serve as a national and international repository for metabolomics data and metadata and will provide analysis tools and access to metabolite standards, protocols, tutorials, training, and more.">		<link rel="home" href="/" title="home" />
+		<link rel='stylesheet' href='/style/style.14.css' type='text/css' />		<style type='text/css' media='screen, projection, print'><!--/*--><![CDATA[/*><!--*/
+
+		/* high pass filter to hide @imports from browsers with poor CSS1 parsing - also hide from mac IE */
+		@import "/common/style/null.css?\"\{";
+		@import "/common/includes/header/02/style/header.css";
+		@import "/common/style/layout.css";
+		@import "/style/layout.css";
+		@import "/common/style/main.css";
+		@import "/style/site.css";			@import "/style/layout_1col.css";	@import "/common/style/restrict_width/966px.css";
+
+	#hdr .login-nav {
+		/* background-image: url('/images/banner_20120503a.png'); */
+		background-color: #ffffff;
+		background-image: url('/images/MW_banner_background_v05.png');
+	}
+
+.topnav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.topnav li {
+    float: left;
+}
+
+.topnav li a, .dropbtn {
+    display: inline;
+    color: #215EA9;
+    text-align: center;
+    text-decoration: none;
+}
+
+.topnav li a:hover, .dropdown:hover .dropbtn {
+}
+
+.topnav li.dropdown {
+    display: inline;
+}
+
+.topnav .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 10;
+}
+
+.topnav .dropdown-content a {
+    color: black;
+    padding: 5px 7px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+	font-weight: lighter;
+}
+
+.topnav .dropdown-content a:hover {
+	background-color: #f1f1f1;
+}
+
+.topnav .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+	/* end hide from mac ie */
+	/*]]>*/--></style>
+
+	<link rel='stylesheet' type='text/css' href='/common/style/print.css' media='print' title='Print Stylesheet' />
+
+	<script type='text/javascript'><!--//--><![CDATA[//><!--
+	//--><!]]></script></head><body>		<div id="constrain">
+			<div class="constrain">
+
+
+				<div id="hdr">
+
+					<span class="cleardiv"><!-- --></span>
+					<span class="cleardiv"><!-- --></span>
+					<div class="login-nav"><div style="text-align:right; vertical-align: text-bottom; height:1.1cm; padding-right: 1.0em; padding-top: 1.0em;"><a href="/login.php" style="color: #dddddd;">Log in</a> <span style="color: #dddddd;"> / </span>
+		<a href="/register.php" style="color: #dddddd;">Register</a></div> <div
+	style="text-align:right;
+			position: absolute;
+			top:80px;
+			right:2px;
+">
+	<form method="get" id="searchform" action="/search/sitesearch.php">
+
+	<table style='background-color:#cccccc;'>
+		<tr>
+			<td style="background-color: #cccccc;">
+			<input type="text" placeholder="Search the Metabolomics Workbench"
+				value=""
+				name="Name"
+				id="s"
+				size="36"
+				title="Search the RefMet database by metabolite name, neutral mass, formula, InChIKey or PubChem compound ID, the metabolite database by name and the NMDR studies by metabolite name, project title or study title. Perform a regular expression search on names by using a 'grep:' prefix."
+				style="font-style: italic;"/>
+
+		</td><td style="background-color: #cccccc; width: 18px; height: 20px;">
+			<input
+				style="
+					background: url(/images/mag_glass_icon.png) no-repeat center;
+					padding: 3px;
+					padding-bottom: 4px;
+					border-width:0px;
+					border-color: #AAA9BB;
+					border-radius: 6px;
+					width: 20px;
+					"
+				 type="submit" id="go" title="Search" value="">
+		</td>
+		</tr>
+		</table>
+
+	</form>
+</div>
+<ul id="header-nav" class="topnav">		
+<li class="top-level dropdown"><a href="/" class="tl-link">Home</a>
+			<ul class='subnav' style='padding-top: 6px; padding-bottom: 0px;' >
+<li><a href='/tools/index.php'>Overview</a></li>
+<li><a href='/data/stats/'>Load and Analyze Your Own Dataset</a></li>
+<li><a href='/data/analyze.php'>Analyze NIH Data Repository Studies</a></li>
+<li><a href='/search/ms.php'>MS Searches</a></li>
+<li class='hilite-sub'><a href='/tools/mw_rest.php'>REST Service</a></li>
+<li class='last'><a href='/tools/externaltools.php'>External Tools (Links)</a></li>			</ul> <!-- end class subnav -->
+		</li>
+			
+<li class="top-level dropdown">
+				<a href="/data/index.php" class="tl-link dropbtn">Data Repository</a>
+   			<div class="dropdown-content">
+				<a href="/data/index.php">Overview</a>
+				<a href="/data/DRCCDataDeposit.php">Upload / Manage Studies</a>
+				<a href="/data/browse.php">Browse / Search Studies</a>
+				<a href="/data/analyze.php">Analyze Studies</a>
+				<a href='/data/datasharing.php'>Data Sharing Policy</a>
+				<a href="/data/tutorials.php">Tutorials</a>
+				<a href="/data/faq.php">FAQ</a>
+   			</div>
+			</li>
+			
+<li class="top-level dropdown">
+				<a href="/databases/index.php" class="tl-link dropbtn">Databases</a>
+   			<div class="dropdown-content">
+				<a href="/databases/index.php">Overview</a>
+   				<a href="/databases/refmet/index.php">RefMet: Metabolite Nomenclature</a>
+   				<a href="/databases/metabolitedatabase.php">Metabolite Database</a>
+   				<a href="/databases/proteome/MGP.php">Human Metabolome Gene/Protein Database (MGP)</a>
+				<a href='/databases/externaldatabases.php'>External Metabolomics Databases (Links)</a>
+   			</div>
+			</li>
+			
+<li class="top-level dropdown">
+				<a href="/protocols/index.php" class="tl-link dropbtn">Protocols</a>
+   			<div class="dropdown-content">
+				<a href="/protocols/index.php">Overview</a>
+				<a href="/protocols/general.php">General Protocols</a>
+				<a href="/protocols/studyspecific.php">Study-specific Protocols</a>
+   			</div>
+			</li>
+			
+<li class="top-level hilite dropdown">
+				<a href="/tools/index.php" class="tl-link dropbtn">Tools</a>
+   			<div class="dropdown-content">
+				<a href="/tools/index.php">Overview</a>
+				<a href ="/data/stats/">Load and analyze your own dataset</a>
+				<a href ="/data/analyze.php" title="(Go to NIH Data Repository section)">Analyze Studies</a>
+				<a href="/search/ms.php">MS Searches</a>
+				<a href="/tools/structuredrawing/sterol_gen2_form.php">Structure drawing</a>
+				<a href="/tools/mw_rest.php">REST Service</a>
+				<a href="/tools/externaltools.php">External Tools (Links)</a>
+   			</div>
+			</li>
+			
+<li class="top-level dropdown">
+				<a href="/about/index.php" class="tl-link dropbtn">About</a>
+   			<div class="dropdown-content">
+				<a href="/about/index.php">Overview</a>
+<!--
+				<a href="/about/funding.php">Funding</a>
+				<a href="/about/rcmrcs.php">Regional Comprehensive Metabolomics Resource Cores (RCMRCs)</a>
+				<a href="https://metabolomics.info/consortium/" target='_blank'>NIH Working Groups</a>
+-->
+				<a href="/about/publishingpartners.php">Publishing Partners</a>
+				<a href="/about/howtocite.php">How to Cite</a>
+				<a href="/about/howtolink.php">How to Link</a>
+				<a href="/about/termsofuse.php">Terms of Use</a>
+				<a href="/about/personnel.php">Personnel</a>
+			<!--	<a href="/about/jobs.php">Jobs</a> -->
+				<a href="/about/contact.php">Contact</a>
+				<a href="/about/sitemap.php">Sitemap</a>
+			<!--	<a href="/about/archive.php">Archive</a> -->
+   			</div>
+			</li>
+			
+<li class="top-level dropdown">
+				<a href="/search/index.php" class="tl-link dropbtn">Search</a>
+   			<div class="dropdown-content">
+				<a href="/search/sitesearch.php">Keyword Search</a>
+				<a href='/search/advancedsearches.php'>Advanced Searches</a>
+   			</div>
+			</li>
+</ul>
+ <!-- end class topnav -->
+						<span class="cleardiv"><!-- --></span>
+					</div> <!-- end div class="login-nav" -->
+
+				</div> <!-- end div id="hdr" -->
+
+
+
+			</div> <!-- end div class="constrain" -->
+		</div><!-- end div id="constrain"-->		<div class='constrain-outer'>
+		<div class='constrain'>
+			<span class='cleardiv'><!-- --></span>
+
+			<div id='content-extranav'>
+				<!-- 20170420 -->
+				<!--<div style='padding-bottom:12px;'>&nbsp;</div>-->
+				<div id='content-journalnav'>
+					<div id='content'>
+
+
+<script type="text/javascript" language="JavaScript">
+function updateOUTPUTS()
+{
+var cpdoutputarr=['','all','classification','regno','formula','exactmass','inchi_key','name','sys_name','smiles','lm_id','pubchem_cid','hmdb_id','kegg_id','chebi_id','metacyc_id','molfile','png'];
+
+
+CON = document.myform.CONTEXT.options[document.myform.CONTEXT.selectedIndex].text ;
+IN = document.myform.INPUTS.options[document.myform.INPUTS.selectedIndex].text ;
+
+if(CON == 'compound'){
+if(IN == 'regno'){
+//alert(CON + " : " + IN);
+//add the molfile and png options for regno
+for(index=0; index <= 22; index++)
+{
+	document.myform.OUTPUTS.options[index].text = '';
+	document.myform.OUTPUTS.options[index].value = '';
+
+}
+
+for (i=0;i<=17;i++) {
+document.myform.OUTPUTS.options[i].text = cpdoutputarr[i];
+}
+}
+else{
+//alert(CON + " : " + IN);
+//add the molfile and png options for regno
+for(index=0; index <= 22; index++)
+{
+	document.myform.OUTPUTS.options[index].text = '';
+	document.myform.OUTPUTS.options[index].value = '';
+
+}
+
+for (i=0;i<=15;i++) {
+document.myform.OUTPUTS.options[i].text = cpdoutputarr[i];
+}
+}
+}
+
+if(CON == 'study'){
+for(index=0; index <= 22; index++)
+{
+	document.myform.OUTPUTS.options[index].text = '';
+	document.myform.OUTPUTS.options[index].value = '';
+
+}
+var studyoutputarr=['','summary','factors','analysis','number_of_metabolites','species','disease','source','untarg_studies',
+'data','mwtab','metabolites',
+'untarg_factors','untarg_data','datatable','available'];
+
+if(IN == 'analysis_id'){
+for (i=9;i<=14;i++) {
+document.myform.OUTPUTS.options[i-8].text = studyoutputarr[i];
+}
+
+}
+
+else if(IN == 'study_id'){
+for (i=0;i<=13;i++) {
+document.myform.OUTPUTS.options[i].text = studyoutputarr[i];
+}
+document.myform.OUTPUTS.options[14].text = studyoutputarr[15];
+}
+
+else{
+//last_name,institute,study_title
+for (i=0;i<=8;i++) {
+document.myform.OUTPUTS.options[i].text = studyoutputarr[i];
+}
+}
+
+}
+
+return true;
+}
+
+function updateINPUTS()
+{
+var cpdinputarr=['','regno','pubchem_cid','inchi_key','formula','lm_id','hmdb_id','kegg_id'];
+var cpdoutputarr=['','all','classification','regno','formula','exactmass','inchi_key','name','sys_name','smiles','lm_id','pubchem_cid','hmdb_id','kegg_id','chebi_id','metacyc_id','molfile','png'];
+
+var studyinputarr=['','study_id','analysis_id','study_title','institute','last_name','metabolite_id'];
+var studyoutputarr=['','summary','factors','analysis','number_of_metabolites','species','disease','source','untarg_studies',
+'data','mwtab','metabolites',
+'untarg_factors','untarg_data','datatable','available'];
+
+var refmetinputarr=['','name','inchi_key','pubchem_cid','exactmass','formula','super_class','main_class','sub_class','match','refmet_id'];
+var refmetoutputarr=['','all','name','inchi_key','pubchem_cid','exactmass','formula','sys_name','super_class','main_class','sub_class','refmet_id'];
+
+var geneinputarr=['','mgp_id','gene_id','gene_name','gene_symbol','taxid'];
+var geneoutputarr=['','all','mgp_id','gene_id','gene_name','gene_symbol','gene_synonyms','alt_names','chromosome','map_location','summary','taxid','species','species_long'];
+
+var proteininputarr=['','mgp_id','gene_id','gene_name','gene_symbol','taxid','mrna_id','refseq_id','protein_gi','uniprot_id','protein_entry','protein_name'];
+var proteinoutputarr=['','all','mgp_id','gene_id','gene_name','gene_symbol','taxid','species','species_long','mrna_id','refseq_id','protein_gi','uniprot_id','protein_entry','protein_name','seqlength','seq','is_identical_to'];
+
+var moverzinputarr=['','LIPIDS','REFMET','MB'];
+var moverzoutputarr=['default'];
+
+var exactmassinputarr=[''];
+var exactmassoutputarr=['default'];
+
+document.myform.VAL.value='';
+	for(index=0; index <= 22; index++)
+	{
+		document.myform.INPUTS.options[index].text = '';
+		document.myform.INPUTS.options[index].value = '';
+		document.myform.OUTPUTS.options[index].text = '';
+		document.myform.OUTPUTS.options[index].value = '';
+
+		}
+
+
+document.myform.INPUTS.options[0].selected = true;
+document.myform.OUTPUTS.options[0].selected = true;
+
+whichSelected = document.myform.CONTEXT.selectedIndex;
+//alert (whichSelected)
+
+
+if(whichSelected ==1){
+for (i=0;i<=7;i++) {
+document.myform.INPUTS.options[i].text = cpdinputarr[i];
+}
+for (i=0;i<=15;i++) {
+document.myform.OUTPUTS.options[i].text = cpdoutputarr[i];
+}
+}
+
+if(whichSelected ==2){
+
+for (i=0;i<=6;i++) {
+document.myform.INPUTS.options[i].text = studyinputarr[i];
+}
+for (i=0;i<=15;i++) {
+document.myform.OUTPUTS.options[i].text = studyoutputarr[i];
+}
+}
+
+if(whichSelected ==3){
+
+for (i=0;i<=10;i++) {
+document.myform.INPUTS.options[i].text = refmetinputarr[i];
+}
+for (i=0;i<=11;i++) {
+document.myform.OUTPUTS.options[i].text = refmetoutputarr[i];
+}
+}
+
+if(whichSelected ==4){
+
+for (i=0;i<=5;i++) {
+document.myform.INPUTS.options[i].text = geneinputarr[i];
+}
+for (i=0;i<=13;i++) {
+document.myform.OUTPUTS.options[i].text = geneoutputarr[i];
+}
+}
+
+if(whichSelected ==5){
+
+for (i=0;i<=11;i++) {
+document.myform.INPUTS.options[i].text = proteininputarr[i];
+}
+for (i=0;i<=17;i++) {
+document.myform.OUTPUTS.options[i].text = proteinoutputarr[i];
+}
+}
+
+if(whichSelected ==6){
+
+for (i=0;i<=3;i++) {
+document.myform.INPUTS.options[i].text = moverzinputarr[i];
+}
+
+document.myform.OUTPUTS.options[0].text = 'default';
+
+//document.myform.VAL.value='<mass>/<adduct>/<tol>';
+document.myform.VAL.value='635.52/M+H/0.2'
+}
+
+if(whichSelected ==7){
+
+document.myform.INPUTS.options[0].text = '';
+
+document.myform.OUTPUTS.options[0].text = 'default';
+
+//document.myform.VAL.value='<lipid bulk abbreviation>/<adduct>';
+document.myform.VAL.value='PC(34:1)/M+H'
+}
+return true;
+}
+
+function generateURL()
+{
+THEVAL = document.myform.VAL.value ;
+if(THEVAL == ''){
+THEVAL = 'x';
+}
+CON = document.myform.CONTEXT.options[document.myform.CONTEXT.selectedIndex].text ;
+IN = document.myform.INPUTS.options[document.myform.INPUTS.selectedIndex].text ;
+OUT = document.myform.OUTPUTS.options[document.myform.OUTPUTS.selectedIndex].text ;
+FORMAT = document.myform.OUTFORMAT.options[document.myform.OUTFORMAT.selectedIndex].value ;
+URL='https://www.metabolomicsworkbench.org/rest/' + CON + '/' + IN + '/' + THEVAL + '/' + OUT + '/' + FORMAT + '';
+//alert(URL)
+window.open(URL,"x");
+return false;
+}
+</script>
+
+<h1>Metabolomics WorkBench REST service</h1>
+<h4>MW REST API (v1.2, 07/22/2025) <a href='MWRestAPIv1.2.pdf'>Download API (pdf)</a></h4>
+<p>
+The Metabolomics WorkBench REST service enables access to a variety of data (including metabolite structures, study metadata and experimental results) using HTTP requests. These requests may be carried out using a web browser or may be embedded in 3rd party applications or scripts to enable programmatic access. Most modern programming languages including PHP, Perl, Python, Java and Javascript have the capability to create HTTP request and interact with datasets such as this REST service.
+</p>
+
+<p>
+	The REST URL consists of three main parts, separated by forward slashes, after the common prefix specifying the invariant base URL:</br>(https://www.metabolomicsworkbench.org/rest/)</br>
+	<ol class='list-item' style='list-style-type:lower-alpha'>
+		<li>The <strong>context</strong> specification dictates which type of resource to access and is chosen from one of the following:</br>
+		<i>&lt;study | compound | refmet | metstat | gene | protein | moverz&gt;</i> 
+</br></li>		<li>The <strong>input</strong> specification is composed of 2 required parameters separated by forward slashes. The first parameter is the <em>input item</em> which depends on the context. The 2nd parameter is an appropriate <em>input value</em> for the chosen item. Examples of an input specification are:</br>
+			<code>/compound/pubchem_cid/311/</code></br>
+			<code>/compound/formula/C20H34O/</code></br>
+			<code>/study/study_id/ST000001/</code></br>
+			<code>/study/study_title/diabetes/</code></br>
+			<code>/refmet/name/Cholesterol/</code></br>
+			<code>/refmet/match/LysoPC16:0/</code></br>
+			<code>/gene/gene_symbol/acaca/</code></br>
+			<code>/protein/uniprot_id/Q13085/</code></br>
+Exceptions to this input specification occur when the 'moverz' context (MS search) is selected. In this case the input value must consist of 3 parts separated by forward slashes: <i>&lt;m/z value&gt;/&lt;adduct&gt;/&lt;tolerance(Daltons)&gt;</i>, e.g. '635.52/M+H/0.2'. In the case of the 'exactmass' input item the input value must consist of 2 parts separated by forward slashes: <i>&lt;lipid bulk abbreviation&gt;/&lt;adduct&gt;</i>, e.g. 'PC(34:1)/M+H' and the output items are ignored.
+		</li>
+
+		<li>The <strong>output</strong> specification is composed of a required <em>output item</em> parameter and an optional <em>output format</em> parameter. The list of possible output items depends on the value chosen for the context. In the case of the "compound" context one or more (separated by commas) of 'regno', 'formula','exactmass', 'inchi_key', 'name', 'sys_name', 'smiles', 'lm_id', 'pubchem_cid', 'hmdb_id', 'kegg_id', 'chebi_id', 'metacyc_id' may be specified. More conveniently, an output type of 'all' may be specified to retrieve all compound-related fields. Also an output type of 'classification' retrieves the LIPID MAPS/ClassyFire classification hierarchy. In the case of the "study" context, allowed output types are 'summary', 'factors', 'analysis', 'metabolites' and 'data'. The default output format is JSON which is amenable to manipulation and parsing by various programming languages. Optionally a text ouput format may be specified, for example:</br>
+			<code>/compound/pubchem_cid/311/all/txt</code></br>
+			Exceptions to this output specification occur when either 'molfile' (molfile is downloaded) or 'png' (png image is displayed in browser) is chosen as an output item in the "compound" context.</br>
+			
+The metstat context has 8 slots delimited by semicolons:</br>
+<strong>/rest/metstat/&lt;ANALYSIS_TYPE&gt;;&lt;POLARITY&gt;;&lt;CHROMATOGRAPHY&gt;;&lt;SPECIES&gt;;&lt;SAMPLE SOURCE&gt;;&lt;DISEASE&gt;;&lt;KEGG_ID&gt;;&lt;REFMET_NAME&gt;</strong>			
+			</br>
+One may skip slots but the semicolons must be entered to ensure that the proper category is assigned to each slot (see examples below).</br> 
+See the <a href=/data/metstat_form.php>MetStat form</a> pulldown menus to view allowed items for each category or the Bubble plot lists for <a href='/data/StudyBubbleCharts.php?Mode=Species'>species</a>, <a href='/data/StudyBubbleCharts.php?Mode=SampleSource'>sample source</a> and <a href='/data/StudyBubbleCharts.php?Mode=Disease'>disease association</a>.</br></br>
+
+The interactive "REST url" creator below shows most of the currently available options for this service. 
+		</li>
+	</ol>
+</p>
+
+<form method='POST' name='myform' action=''>
+<table class='datatable' border=2 >
+	<tr>
+		<th bgcolor=#CCCCCC>Base URL</th>
+		<th bgcolor=#F3F781>/Context</th>
+		<th bgcolor=#F3F781>/Input item</th>
+		<th bgcolor=#F3F781>/Input value</th>
+		<th bgcolor=#A9F5A9>/Output item</th>
+		<th bgcolor=#A9F5A9>/Output format</th>
+
+	<tr>
+		<td>https://www.metabolomicsworkbench.org/rest</td>
+		<td>
+			/
+			<select name="CONTEXT" onChange="updateINPUTS();">
+				<option></option>
+				<option value="1">compound</option>
+				<option value="2">study</option>
+				<option value="3">refmet</option>
+				<option value="4">gene</option>			
+				<option value="5">protein</option>
+				<option value="6">moverz</option>
+				</select>
+				
+		</td>
+		<td>
+			/
+			<select name="INPUTS" onChange="updateOUTPUTS();">
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				</select>
+		</td>
+		<td>
+			/<input type='text' name='VAL' size='15'>
+		</td>
+		<td>/
+			<select name="OUTPUTS">
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				<option>
+				</select>
+		<td>/
+			<select name="OUTFORMAT">
+				<option value="txt">text
+				<option value="">json
+
+			</select>
+</table>
+
+<br>
+<input type="Submit" name="submit" value="Create REST URL" onClick='generateURL();'>
+<input type="reset"> (<a href="#rest">What is REST?</A>) (<a href="#json">What is JSON?</A>) 
+</form>
+</br>
+
+<p>
+The table below contains several examples of REST urls.
+</p>
+
+<table class='datatable' border=1>
+	<tr bgcolor=#DDDDDD>
+		<th>Example request</th>
+		<th>Example URL</th>
+	</tr>
+<tr><td colspan=2 align=center bgcolor=#f7f0c1><strong>Compound context</strong>
+	<tr>
+		<td>Fetch compound common name from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/11/name' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/regno/11/name</a></td>
+	</tr>
+	<tr>
+		<td>Fetch all compound fields from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/11/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/regno/11/all</a></td>
+	</tr>
+	<tr>
+		<td>Fetch all compound fields as text from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/11/all/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/regno/11/all/txt</a></td>
+	</tr>
+	<tr>
+		<td>Fetch compound smiles from PubChem compound ID</td>
+		<td><a href='/rest/compound/pubchem_cid/5281365/smiles' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/pubchem_cid/5281365/smiles</a></td>
+	</tr>
+	<tr>
+		<td>Fetch compound common name and sytematic name from InChIKey</td>
+		<td><a href='/rest/compound/inchi_key/JTWQQJDENGGSBJ-UHFFFAOYSA-N/name,sys_name' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/inchi_key/JTWQQJDENGGSBJ-UHFFFAOYSA-N/name,sys_name</a></td>
+	</tr>
+	<tr>
+		<td>Fetch all compound fields from formula (multiple records)</td>
+		<td><a href='/rest/compound/formula/C20H34O/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/formula/C20H34O/all</a></td>
+	</tr>
+	<tr>
+		<td>Fetch compound classification hierarchy from PubChem compound ID</td>
+		<td><a href='/rest/compound/pubchem_cid/5281365/classification' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/pubchem_cid/5281365/classification</a></td>
+	</tr>
+	<tr>
+		<td>Download compound molfile from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/34361/molfile'
+ target='_blank'>
+https://www.metabolomicsworkbench.org/rest/compound/regno/34361/molfile</a>
+</td>
+	</tr>
+	<tr>
+		<td>Download compound SD file from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/34361/sdf'
+ target='_blank'>
+https://www.metabolomicsworkbench.org/rest/compound/regno/34361/sdf</a>
+</td>
+	</tr>
+	<tr>
+		<td>Fetch png image of structure from <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> regno</td>
+		<td><a href='/rest/compound/regno/11/png' target='_blank'>https://www.metabolomicsworkbench.org/rest/compound/regno/11/png</a></td>
+	</tr>
+
+
+<tr><td colspan=2 align=center bgcolor=#f7f0c1><strong>Study context</strong>
+
+	<tr>
+		<td>Show all publicly available studies (Project, Study, Analysis ID)</td>
+		<td><a href='/rest/study/study_id/ST/available' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/available</a></td>
+	</tr>
+	<tr>
+		<td>Fetch summary information for a study</td>
+		<td><a href='/rest/study/study_id/ST000001/summary' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST000001/summary</a></td>
+	</tr>
+	<tr>
+		<td>Fetch samples and experimental variables (factors) for a study</td>
+		<td><a href='/rest/study/study_id/ST002115/factors' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST002115/factors/</a></td>
+	</tr>
+	<tr>
+		<td>Fetch summary information for all studies</td>
+		<td><a href='/rest/study/study_id/ST/summary' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/summary</a></td>
+	</tr>
+	<tr>
+		<td>Fetch analysis information for a study</td>
+		<td><a href='/rest/study/study_id/ST000001/analysis' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST000001/analysis</a></td>
+	</tr>
+	<tr>
+		<td>Fetch metabolites and annotations detected in a study (one study at a time)</td>
+		<td><a href='/rest/study/study_id/ST000009/metabolites' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST000009/metabolites</a></td>
+	</tr>
+	<tr>
+		<td>Fetch metabolites measurements for a study (one study at a time)</td>
+		<td><a href='/rest/study/study_id/ST000001/data' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST000001/data</a></td>
+	</tr>
+	<tr>
+		<td>Fetch mwTab content for an analysis within a study in mwTab format</td>
+		<td><a href='/rest/study/analysis_id/AN000001/mwtab/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000001/mwtab/txt</a></td>
+	</tr>
+	<tr>
+		<td>Fetch mwTab content for an analysis within a study in json format</td>
+		<td><a href='/rest/study/analysis_id/AN000001/mwtab' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000001/mwtab</a></td>
+	</tr>
+	<tr>
+		<td>Fetch species information (as text) for all studies</td>
+		<td><a href='/rest/study/study_id/ST/species/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/species/txt</a></td>
+	</tr>
+	<tr>
+		<td>Fetch sample source information (as text) for all studies</td>
+		<td><a href='/rest/study/study_id/ST/source/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/source/txt</a></td>
+	</tr>
+	<tr>
+		<td>Fetch disease association (where applicable) for all studies</td>
+		<td><a href='/rest/study/study_id/ST/disease' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/disease</a></td>
+
+
+
+	<tr>
+		<td>Fetch list of studies with untargeted data in NMDR</td>
+		<td><a href='/rest/study/study_id/x/untarg_studies/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/x/untarg_studies/</a></td>
+	<tr>
+		<td>Fetch untargeted data (where applicable) for an analysis within a study</td>
+		<td><a href='/rest/study/analysis_id/AN000113/untarg_data/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000113/untarg_data/</a></td>
+	<tr>
+		<td>Fetch experimental factors for an untargeted data analysis within a study</td>
+		<td><a href='/rest/study/analysis_id/AN000113/untarg_factors/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000113/untarg_factors/</a></td>
+
+	<tr>
+		<td>Fetch list of studies with named metabolites in NMDR</td>
+		<td><a href='/rest/study/study_id/ST/named_metabolites/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST/named_metabolites/</a></td>
+	<tr>
+		<td>Show number of named metbolites in a study</td>
+		<td nowrap><a href='/rest/study/study_id/ST000001/number_of_metabolites/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/study_id/ST000001/number_of_metabolites/</a></td>
+	<tr>
+		<td>Fetch list of studies (as text) containing a RefMet name</td>
+		<td><a href='/rest/study/refmet_name/Cholesterol/data/txt/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/refmet_name/Cholesterol/data/txt/</a></td>
+
+	<tr>
+		<td>Fetch list of studies (as text) containing a KEGG_ID</td>
+		<td><a href='/rest/study/kegg_id/C00002/data/txt/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/kegg_id/C00002/data/txt/</a></td>
+
+	<tr>
+		<td>Show metabolite name and RefMet name for a (NMDR) metabolite_id</td>
+		<td><a href='/rest/study/metabolite_id/ME272191/available/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/metabolite_id/ME272191/available/</a></td>
+
+	<tr>
+		<td>Fetch table of results (identified metabolites) for an analysis_id</td>
+		<td><a href='/rest/study/analysis_id/AN000001/datatable/' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000001/datatable/</a></td>
+	<tr>
+		<td>Download table of results (identified metabolites) for an analysis_id</td>
+
+		<td><a href='/rest/study/analysis_id/AN000001/datatable/file' target='_blank'>https://www.metabolomicsworkbench.org/rest/study/analysis_id/AN000001/datatable/file</a></td>
+
+<tr><td colspan=2 align=center bgcolor=#f7f0c1><strong>RefMet context</strong>
+
+<tr><td>Fetch all <a href='/databases/refmet/index.php'>RefMet</a> fields from name</td>
+<td><a href='/rest/refmet/name/Cholesterol/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/name/Cholesterol/all</a>
+
+<tr><td>Fetch all <a href='/databases/refmet/index.php'>RefMet</a> fields from formula</td>
+<td><a href='/rest/refmet/formula/C12H24O2/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/formula/C12H24O2/all</a>
+
+<tr><td>Standardize metabolite name to <a href='/databases/refmet/index.php'>RefMet</a></td>
+<td><a href='/rest/refmet/match/citrate/name/' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/match/citrate/name/</a>
+
+<tr><td>Fetch entire <a href='/databases/refmet/index.php'>RefMet</a> database (Name,exact mass,formula,InChIKey,PubChemID,classification)</td>
+<td><a href='/rest/refmet/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/all</a>
+
+<tr><td>Fetch all <a href='/databases/refmet/index.php'>RefMet</a> records containing external id's (PubChem CID,ChEBI,HMDB,KEGG,LIPID MAPS)</td>
+<td><a href='/rest/refmet/all_ids' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/all_ids</a>
+
+<tr><td>Fetch all <a href='/databases/refmet/index.php'>RefMet</a> names</td>
+<td><a href='/rest/refmet/name' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/name</a>
+
+<tr><td>Fetch all <a href='/databases/refmet/index.php'>RefMet</a> names and chemical classification</td>
+<td><a href='/rest/refmet/classification' target='_blank'>https://www.metabolomicsworkbench.org/rest/refmet/classification</a>
+
+<tr><td colspan="2" align="center" bgcolor="#f7f0c1"><strong>MetStat context</strong>
+
+</td></tr><tr><td nowrap>Fetch all human studies on blood with a diabetes association run on LCMS using HILIC in positive ion mode</td>
+<td nowrap><a href="/rest/metstat/LCMS;POSITIVE;HILIC;Human;Blood;Diabetes" target="_blank">https://www.metabolomicsworkbench.org/rest/metstat/LCMS;POSITIVE;HILIC;Human;Blood;Diabetes</a>
+
+</td></tr><tr><td nowrap>Fetch all human studies on blood with a diabetes association (any type of analysis)</td>
+<td nowrap><a href="/rest/metstat/;;;Human;Blood;Diabetes" target="_blank">https://www.metabolomicsworkbench.org/rest/metstat/;;;Human;Blood;Diabetes</a>
+
+</td></tr><tr><td nowrap>Fetch all human studies on blood containing Tyrosine (RefMet name)</td>
+<td nowrap><a href="/rest/metstat/;;;Human;Blood;;;Tyrosine" target="_blank">https://www.metabolomicsworkbench.org/rest/metstat/;;;Human;Blood;;;Tyrosine</a>
+
+</td></tr><tr><td nowrap>Fetch all studies containing Desmosterol (RefMet name)</td>
+<td nowrap><a href="/rest/metstat/;;;;;;;Desmosterol" target="_blank">https://www.metabolomicsworkbench.org/rest/metstat/;;;;;;;Desmosterol</a>
+
+</td></tr><tr><td nowrap>Fetch all studies containing KEGG ID C00632 (3-Hydroxyanthranilic acid)</td>
+<td nowrap><a href="/rest/metstat/;;;;;;C00632" target="_blank">
+https://www.metabolomicsworkbench.org/rest/metstat/;;;;;;C00632</a>
+
+</td></tr><tr><td nowrap>Fetch all mouse studies on brain with Metabolic syndrome association</td>
+<td nowrap><a href='/rest/metstat/;;;Mouse;Brain;Metabolic syndrome'" target="_blank">
+https://www.metabolomicsworkbench.org/rest/metstat/;;;Mouse;Brain;Metabolic syndrome</a>
+
+
+<tr><td colspan=2 align=center bgcolor=#f7f0c1><strong>Gene/protein context</strong>
+
+<tr><td>Fetch all gene fields from gene symbol<td><a href='/rest/gene/gene_symbol/acaca/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/gene/gene_symbol/acaca/all</a>
+<tr><td>Fetch gene name from Entrez gene id<td><a href='/rest/gene/gene_id/31/gene_name' target='_blank'>https://www.metabolomicsworkbench.org/rest/gene/gene_id/31/gene_name</a>
+<tr><td>Fetch all protein fields from UniProt id<td><a href='/rest/protein/uniprot_id/Q13085/all' target='_blank'>https://www.metabolomicsworkbench.org/rest/protein/uniprot_id/Q13085/all</a>
+<tr><td>Fetch all protein fields from Entrez gene id<td><a href='/rest/protein/gene_id/19/all/' target='_blank'>https://www.metabolomicsworkbench.org/rest/protein/gene_id/19/all/</a>
+<tr><td>Fetch mRNA id from protein Refseq id<td><a href='/rest/protein/refseq_id/NP_005493/mrna_id/' target='_blank'>https://www.metabolomicsworkbench.org/rest/protein/refseq_id/NP_005493/mrna_id/</a>
+
+
+<tr><td colspan=2 align=center bgcolor=#f7f0c1><strong>moverz(Mass spectrometry) context</strong>
+
+
+<tr><td>Perform MS precursor ion search on <a href='/databases/metabolitedatabase.php'>Metabolomics Workbench database</a> with m/z 635.52, ion-type* M+H and mass tolerance of 0.5 and output as text</td>
+<td><a href='/rest/moverz/MB/635.52/M+H/0.5/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/moverz/MB/635.52/M+H/0.5/txt</a>
+
+<tr><td>Perform MS precursor ion search on <a href=/data/L_form.php>LIPIDS virtual database</a> with m/z 513.45, ion-type* M-2H (2-) and mass tolerance of 0.2 and output as text</td>
+<td><a href='/rest/moverz/LIPIDS/513.45/M-2H/0.2/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/moverz/LIPIDS/513.45/M-2H/0.2/txt</a>
+
+<tr><td>Perform MS precursor ion search on <a href='/databases/refmet/index.php'>RefMet</a> database with m/z 255.2, ion-type* M+H and mass tolerance of 0.2 and output as text</td>
+<td><a href='/rest/moverz/REFMET/255.2/M+H/0.2/txt' target='_blank'>https://www.metabolomicsworkbench.org/rest/moverz/REFMET/255.2/M+H/0.2/txt</a>
+
+<tr><td>Calculate the exact mass (m/z) of the [M+H]+ ion of the lipid abbreviation PC(34:1)</td>
+<td><a href='/rest/moverz/exactmass/PC(34:1)/M+H/' target='_blank'>https://www.metabolomicsworkbench.org/rest/moverz/exactmass/PC(34:1)/M+H</a>
+	</tr>	
+	</table>
+</br>
+<font size=-1>
+<strong>*Ion-types:</strong></br>
+<strong>Positive:</strong> M+H, M+2H, M+3H, M+4H, M+H-H2O, M+H-Hexose, M+H-EtnP, M+H-SerP,
+M+H+CH3OH, M+H+CH3CN, M+H+2CH3CN, M+Na+CH3CN, M+NH4, M+Ag, M+Na, M+2Na-H, M+2K-H, M+2Na, M+K, M+2K, M+Li, M+2Li, M.NaFormate-H, M.NaFormate+H, M.NH4Formate-H, M.NH4Formate+H, M., M.CH3
+</br>
+<strong>Negative:</strong> M-H, M-2H, M-3H, M-4H, M-CH3, M-H-H2O, M.Cl, M.F, M.HF2, M.OAc, M.Formate, M.NaFormate-H, M.KFormate-H, M+Na-2H, M+K-2H, M-H-Ser
+</br>
+<strong>Uncharged:</strong> Neutral
+</p>
+<strong>#Lipid abbreviations:</strong></br>
+FA, CoA, CAR, MG, DG, TG, PA, PC, PS, PE, PG, PGP, PI, PIP, PIP2, PIP3, MGDG, DGDG, SQDG, Cer, SM, CerP, PE-Cer, PI-Cer, GlcCer, GalCer, LacCer, GM3Cer, GM4Cer, GB3Cer, iGB3Cer, asialo-GM2Cer, Lc3Cer, Manb1-4GlcCer, MolluCer, ArthroCer, CE
+</br>
+<strong>Lipid abbreviation notes:</strong> These are sum-composition or "bulk" abbreviations <i>(&lt;total number of carbons in chain(s)&gt;:&lt;total number of double bonds in chain(s)&gt;)</i>.
+</font>
+<a name="rest"></a>
+<p>
+	<strong>REST (REpresentational State Transfer)</strong> is an architectural style consisting of a coordinated set of architectural constraints applied to components, connectors, and data elements, within a distributed hypermedia system. REST ignores the details of component implementation and protocol syntax in order to focus on the roles of components, the constraints upon their interaction with other components, and their interpretation of significant data elements.</br>
+
+	Fielding, Roy T. (2000). "Chapter 5: Representational State Transfer (REST)". Architectural Styles and the Design of Network-based Software Architectures (Ph.D.). University of California, Irvine.</br>
+	Fielding, Roy T.; Taylor, Richard N. (May 2002), "Principled Design of the Modern Web Architecture" (PDF), ACM Transactions on Internet Technology (TOIT) (New York: Association for Computing Machinery) 2 (2): 115-150, doi:10.1145/514183.514185, ISSN 1533-5399</br>
+<a href='https://en.wikipedia.org/wiki/Representational_state_transfer'>REST Wikipedia page</a>
+</p>
+
+<a name="rest"></a>
+<p>
+	<strong>JSON (JavaScript Object Notation)</strong> is a lightweight data-interchange format which human readable and also convenient for computers to parse and generate. JSON is a text format that is completely language independent but uses conventions that are familiar to most common programming languages. </br>
+	<a href='https://json.org/'>Official JSON website</a></br>
+</p>
+
+           </div> <!-- close div id='content' -->
+        </div> <!-- close div id='content-journalnav' --></div> <!-- div id='content-extranav' -->
+
+<span class="cleardiv"><!-- --></span>
+<div class="cleardiv"><!-- --></div>	<div id="ftr" class="footer">
+	<ul class="journal-details">
+	<li class="last">UCSD Metabolomics Workbench, a resource sponsored by the Common Fund of the National Institutes of Health</li> 
+	<li class="last">This repository is under review for potential modification in compliance with Administration directives</li>
+	</ul>
+	<ul class="footer-links">
+		<li><a href="/about/termsofuse.php">Terms of use</a></li>
+		<li><a href="/about/sitemap.php">Site map</a></li>
+		<li><a href="/about/contact.php">Contact</a></li>
+		<li class="last"><a href="/about/personnel.php">NMDR Personnel</a></li>
+	<!--	</ul> -->
+	<!--	</li> -->
+	</ul>
+	<span class="cleardiv"><!-- --></span>
+	</div>
+
+	<table>
+	<tr>
+	<td>&nbsp;</td>
+	<td style="vertical-align:middle; width:60px;">
+	<img src="/images/ucsd_logo.png" alt="logo" width="100">
+	</td>
+	</tr>
+	</table>	</div> <!-- close div class='constrain' -->
+</div> <!-- close div class='constrain-outer' -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZQL2CL7F0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1ZQL2CL7F0');
+</script></body>
+</html>
