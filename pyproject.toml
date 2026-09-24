@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "chainlit>=2.12.0",
     "openai>=3.17.0",
-    "smolagents[toolkit]>=1.26.0",
+    "smolagents[docker,toolkit]>=1.26.0",
 ]
 
 [dependency-groups]
@@ -19,3 +19,5 @@ test = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+pythonpath = ["."]
+testpaths = ["tests"]
